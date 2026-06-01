@@ -1,0 +1,140 @@
+{
+  "name": "TaskMind - 每日提醒",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 9 * * *"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        1440,
+        240
+      ],
+      "id": "2b53216b-9ad3-4582-9b8e-2ebd9cf18798",
+      "name": "Schedule Trigger (每日 09:00)"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1VyRwG_bWYfu8uVmPIs0xPwDJs__b4yCsmrvf9UuZka0",
+          "mode": "list",
+          "cachedResultName": "提醒助理",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VyRwG_bWYfu8uVmPIs0xPwDJs__b4yCsmrvf9UuZka0/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "工作表1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VyRwG_bWYfu8uVmPIs0xPwDJs__b4yCsmrvf9UuZka0/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1648,
+        240
+      ],
+      "id": "3cec23b0-7918-4b1d-a945-9c58fad3750c",
+      "name": "Get 今日待辦任務",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "3oP5Xw9cPfxHuTfI",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const rows = $input.all();\n\n// 台北時間\nconst offset = 8 * 60 * 60 * 1000;\nconst now = new Date(Date.now() + offset);\nconst today = now.toISOString().split('T')[0];\n\nconst tomorrow = new Date(now.getTime() + 86400000).toISOString().split('T')[0];\nconst threeDays = new Date(now.getTime() + 3 * 86400000).toISOString().split('T')[0];\n\nconst todayTasks = rows.filter(r => r.json.deadline_date === today && r.json.status === '未完成');\nconst tomorrowTasks = rows.filter(r => r.json.deadline_date === tomorrow && r.json.status === '未完成');\nconst soonTasks = rows.filter(r => r.json.deadline_date > tomorrow && r.json.deadline_date <= threeDays && r.json.status === '未完成');\n\nlet msg = '📋 每日任務提醒\\n\\n';\n\nif (todayTasks.length > 0) {\n  msg += '🔴 今天到期：\\n';\n  todayTasks.forEach((t, i) => msg += `${i+1}. ${t.json.task_name}，截止 ${t.json.deadline_time || '23:59'}\\n`);\n  msg += '\\n';\n}\n\nif (tomorrowTasks.length > 0) {\n  msg += '🟡 明天到期：\\n';\n  tomorrowTasks.forEach((t, i) => msg += `${i+1}. ${t.json.task_name}，截止 ${t.json.deadline_time || '23:59'}\\n`);\n  msg += '\\n';\n}\n\nif (soonTasks.length > 0) {\n  msg += '🟢 三天內到期：\\n';\n  soonTasks.forEach((t, i) => msg += `${i+1}. ${t.json.task_name}，截止日 ${t.json.deadline_date}\\n`);\n}\n\nif (todayTasks.length === 0 && tomorrowTasks.length === 0 && soonTasks.length === 0) {\n  msg = '✅ 近三天沒有待辦任務，繼續加油！';\n}\n\nreturn [{ json: { msg } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1856,
+        240
+      ],
+      "id": "2761931b-a9c0-46c4-9c71-234769c97f08",
+      "name": "Code (組合提醒訊息)"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.line.me/v2/bot/message/push",
+        "sendHeaders": true,
+        "specifyHeaders": "json",
+        "jsonHeaders": "{\n  \"Content-Type\": \"application/json\",\n  \"Authorization\": \"Bearer YOUR_LINE_CHANNEL_ACCESS_TOKEN\"\n}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({to: \"U76a78ee663acf7e099e54516525b67ff\", messages: [{type: \"text\", text: $json.msg}]}) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        2064,
+        240
+      ],
+      "id": "72793f0f-8f63-465a-b452-78d6e8cfe6f7",
+      "name": "HTTP Request (每日提醒)"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger (每日 09:00)": {
+      "main": [
+        [
+          {
+            "node": "Get 今日待辦任務",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get 今日待辦任務": {
+      "main": [
+        [
+          {
+            "node": "Code (組合提醒訊息)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code (組合提醒訊息)": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request (每日提醒)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "ee8093c2-ad41-422f-9a6e-a650de9d780a",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "628c89e2aed0df780ac844e2c55d02c762891f4348f3d441f498406d43bef407"
+  },
+  "id": "hl8EuK8oJqkmqLgo",
+  "tags": []
+}

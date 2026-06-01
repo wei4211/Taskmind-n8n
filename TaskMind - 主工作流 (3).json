@@ -1,0 +1,2651 @@
+{
+  "name": "TaskMind - 主工作流",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "taskmind",
+        "options": {
+          "responseData": "noData"
+        }
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        21072,
+        25264
+      ],
+      "id": "e0cff753-45a4-49d7-85d5-d130905ee41f",
+      "name": "Webhook",
+      "webhookId": "3ab94a18-6f50-48a9-88d1-0b5df13a36c5"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ '今天日期：' + $json.today + '\\n用戶輸入：' + $json.message }}",
+        "options": {
+          "systemMessage": "你是一個任務管理助理，解析用戶的自然語言輸入，輸出 JSON 格式。\n只輸出 JSON，不要 markdown 標記，不要任何解釋文字。\n日期必須是真實的 YYYY-MM-DD 字串（例如 2026-05-24），根據「今天日期」自行推算明天、後天、下週等，禁止輸出任何程式碼或變數。\n\n時區：Asia/Taipei\n週曆規則：一週從週一（禮拜一）開始，週日（禮拜日）是一週的最後一天。例如今天是週日，「下禮拜一」指的是明天（下一個週一），而非下下個週一。\n\nintent 類型：create_task, query_task, complete_task, delete_task, unknown\n\ncreate_task 格式：\n{\"intent\":\"create_task\",\"task_name\":\"任務名稱\",\"category\":\"分類\",\"deadline_date\":\"2026-05-24\",\"deadline_time\":\"23:59\",\"reminder_time\":\"2026-05-24 09:00\",\"priority\":\"中\",\"status\":\"未完成\",\"note\":\"\",\"confidence\":0.95}\n\ncomplete_task 格式：\n{\"intent\":\"complete_task\",\"task_name\":\"任務名稱\",\"confidence\":0.95}\n\nquery_task 格式：\n{\"intent\":\"query_task\",\"query_range\":\"today|this_week|all\",\"status\":\"未完成\",\"confidence\":0.95}\n\ndelete_task 格式：\n{\"intent\":\"delete_task\",\"task_name\":\"任務名稱\",\"confidence\":0.95}\n\nconfirm_pending 格式（用戶確認新增圖片辨識的任務，如「確認新增」「確認」「好」「是」「對」「ok」）：\n{\"intent\":\"confirm_pending\",\"confidence\":0.95}\n\ncancel_pending 格式（用戶取消圖片辨識的任務，如「取消」「不要」「算了」「不用」）：\n{\"intent\":\"cancel_pending\",\"confidence\":0.95}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        21696,
+        25568
+      ],
+      "id": "926a0390-810e-4552-b749-203b426a56b6",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.0-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        21696,
+        25760
+      ],
+      "id": "3e1a2f84-a038-44ef-bf9d-2bde4121100f",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "GzXWFREM8zrsXpva",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1VyRwG_bWYfu8uVmPIs0xPwDJs__b4yCsmrvf9UuZka0",
+          "mode": "list",
+          "cachedResultName": "提醒助理",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VyRwG_bWYfu8uVmPIs0xPwDJs__b4yCsmrvf9UuZka0/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "工作表1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VyRwG_bWYfu8uVmPIs0xPwDJs__b4yCsmrvf9UuZka0/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        22576,
+        25776
+      ],
+      "id": "6af4519d-a9a1-4c7c-8565-5c881f3db763",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "3oP5Xw9cPfxHuTfI",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1VyRwG_bWYfu8uVmPIs0xPwDJs__b4yCsmrvf9UuZka0",
+          "mode": "list",
+          "cachedResultName": "提醒助理",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VyRwG_bWYfu8uVmPIs0xPwDJs__b4yCsmrvf9UuZka0/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "工作表1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VyRwG_bWYfu8uVmPIs0xPwDJs__b4yCsmrvf9UuZka0/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        22768,
+        26016
+      ],
+      "id": "f5ce5c1a-01d3-4f02-8964-bb3b07d60402",
+      "name": "Get row(s) in sheet1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "3oP5Xw9cPfxHuTfI",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "complete-found-check",
+              "leftValue": "={{ $json.found }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "name": "filter.operator.true"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        23184,
+        26016
+      ],
+      "id": "1b8d6bc1-ed01-4f11-bc9d-2b54a420d32f",
+      "name": "If4 (complete found?)"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.line.me/v2/bot/message/push",
+        "sendHeaders": true,
+        "specifyHeaders": "json",
+        "jsonHeaders": "{\n  \"Content-Type\": \"application/json\",\n  \"Authorization\": \"Bearer YOUR_LINE_CHANNEL_ACCESS_TOKEN\"\n}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({to: $json.userId, messages: [{type: 'text', text: $json.lineBodyText}]}) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        23392,
+        26032
+      ],
+      "id": "e4b0fbcb-571e-4909-9d4f-02f4748d147d",
+      "name": "HTTP Request2 (not found)"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1VyRwG_bWYfu8uVmPIs0xPwDJs__b4yCsmrvf9UuZka0",
+          "mode": "list",
+          "cachedResultName": "提醒助理",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VyRwG_bWYfu8uVmPIs0xPwDJs__b4yCsmrvf9UuZka0/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "工作表1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VyRwG_bWYfu8uVmPIs0xPwDJs__b4yCsmrvf9UuZka0/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        22896,
+        26208
+      ],
+      "id": "c238c009-fb66-43ab-a4bb-08b1d7e4fe8f",
+      "name": "Get row(s) in sheet2",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "3oP5Xw9cPfxHuTfI",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "delete-found-check",
+              "leftValue": "={{ $json.found }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "name": "filter.operator.true"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        23312,
+        26208
+      ],
+      "id": "630e6592-6aec-427f-946e-ae06faec0f2f",
+      "name": "If5 (delete found?)"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.line.me/v2/bot/message/push",
+        "sendHeaders": true,
+        "specifyHeaders": "json",
+        "jsonHeaders": "{\n  \"Content-Type\": \"application/json\",\n  \"Authorization\": \"Bearer YOUR_LINE_CHANNEL_ACCESS_TOKEN\"\n}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({to: $json.userId, messages: [{type: 'text', text: $json.lineBodyText}]}) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        23504,
+        26336
+      ],
+      "id": "98ca61a8-0e4f-4293-a67c-e91d59d91533",
+      "name": "HTTP Request3 (not found)"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.line.me/v2/bot/message/push",
+        "sendHeaders": true,
+        "specifyHeaders": "json",
+        "jsonHeaders": "{\n  \"Content-Type\": \"application/json\",\n  \"Authorization\": \"Bearer YOUR_LINE_CHANNEL_ACCESS_TOKEN\"\n}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({to: $('Code (解析 replyToken & userId)').first().json.userId, messages: [{type: 'text', text: $('Code (解析 AI 意圖 JSON)').first().json.lineBodyText}]}) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        23008,
+        27008
+      ],
+      "id": "7516d68c-d34b-46b3-9fb3-2ee07c000c4b",
+      "name": "HTTP Request4"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "img-type-check",
+              "leftValue": "={{ $json.messageType }}",
+              "rightValue": "image",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        21584,
+        25264
+      ],
+      "id": "a7e79783-90ee-469e-84ff-f4e02e1ece8f",
+      "name": "If (image?)"
+    },
+    {
+      "parameters": {
+        "url": "={{ 'https://api-data.line.me/v2/bot/message/' + $json.messageId + '/content' }}",
+        "sendHeaders": true,
+        "specifyHeaders": "json",
+        "jsonHeaders": "{\n  \"Authorization\": \"Bearer YOUR_LINE_CHANNEL_ACCESS_TOKEN\"\n}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        21952,
+        25248
+      ],
+      "id": "829d775d-3787-488e-881d-7d687ef6d79a",
+      "name": "HTTP Request (LINE image)"
+    },
+    {
+      "parameters": {
+        "jsCode": "// ⚠️ 請在下方填入你的 Gemini API Key\nconst apiKey = 'YOUR_GEMINI_API_KEY';\n\n// 讀取 LINE 下載的圖片\nconst binaryBuffer = await helpers.getBinaryDataBuffer(0, 'data');\nconst imageBase64 = binaryBuffer.toString('base64');\nconst mimeType = $input.first().binary?.data?.mimeType || 'image/jpeg';\n\nconst today = $('Code (解析 replyToken & userId)').first().json.today;\nconst userId = $('Code (解析 replyToken & userId)').first().json.userId;\n\n// 呼叫 Gemini Vision API\nconst requestBody = {\n  contents: [{\n    parts: [\n      { inline_data: { mime_type: mimeType, data: imageBase64 } },\n      { text: `今天日期：${today}\\n週曆規則：一週從週一開始，週日是最後一天。\\n\\n請從這張圖片擷取所有任務和截止日期（課表、作業單、白板等），以 JSON 陣列格式輸出。每個任務包含：task_name, deadline_date (YYYY-MM-DD), deadline_time (HH:MM，預設23:59), category (學業/工作/生活/未分類), priority (高/中/低，預設中), reminder_time (YYYY-MM-DD HH:MM，預設截止日09:00)。只輸出 JSON 陣列，不要 markdown，不要說明文字。若圖片中沒有任務資訊，輸出空陣列 []。` }\n    ]\n  }]\n};\n\nlet response;\ntry {\n  response = await helpers.httpRequest({\n    method: 'POST',\n    url: `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,\n    headers: { 'Content-Type': 'application/json' },\n    body: JSON.stringify(requestBody),\n    json: true\n  });\n} catch(e) {\n  return [{ json: { isError: true, userId, lineBodyText: '❌ 圖片分析失敗：' + e.message } }];\n}\n\n// 解析回傳的任務列表\nconst text = response.candidates?.[0]?.content?.parts?.[0]?.text || '';\nconst cleaned = text.replace(/```json|```/g, '').trim();\n\nlet tasks;\ntry {\n  tasks = JSON.parse(cleaned);\n} catch(e) {\n  return [{ json: { isError: true, userId, lineBodyText: '❌ 無法辨識圖片中的任務，請確認圖片清晰度並重試。' } }];\n}\n\nif (!Array.isArray(tasks) || tasks.length === 0) {\n  return [{ json: { isError: true, userId, lineBodyText: '📷 圖片中找不到任何任務，請傳送課表或作業單的清晰照片。' } }];\n}\n\nconst now = new Date(Date.now() + 8 * 60 * 60 * 1000);\nconst nowStr = now.toISOString().slice(0, 16).replace('T', ' ');\n\nreturn tasks.map((t, i) => ({\n  json: {\n    isError: false,\n    id: String(now.getTime() + i),\n    task_name: t.task_name || '',\n    category: t.category || '未分類',\n    deadline_date: t.deadline_date || today,\n    deadline_time: t.deadline_time || '23:59',\n    reminder_time: t.reminder_time || (t.deadline_date || today) + ' 09:00',\n    priority: t.priority || '中',\n    status: '未完成',\n    note: '',\n    source_message: '[圖片辨識]',\n    created_at: nowStr,\n    updated_at: nowStr,\n    userId,\n    totalCount: tasks.length\n  }\n}));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        22160,
+        25248
+      ],
+      "id": "62fbe605-dd69-446f-a542-b254725a2f23",
+      "name": "Code (Vision + Parse)"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "has-tasks-check",
+              "leftValue": "={{ $json.isError }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "name": "filter.operator.true"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        22416,
+        25248
+      ],
+      "id": "b256f9c0-76bd-4836-9a1c-77bb0f172797",
+      "name": "If (has error?)"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.line.me/v2/bot/message/push",
+        "sendHeaders": true,
+        "specifyHeaders": "json",
+        "jsonHeaders": "{\n  \"Content-Type\": \"application/json\",\n  \"Authorization\": \"Bearer YOUR_LINE_CHANNEL_ACCESS_TOKEN\"\n}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({to: $json.userId, messages: [{type: 'text', text: $json.lineBodyText}]}) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        22624,
+        25120
+      ],
+      "id": "dbd9ccfc-6ff8-4cc7-9548-96c3625c517a",
+      "name": "HTTP Request (VLM error)"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1VyRwG_bWYfu8uVmPIs0xPwDJs__b4yCsmrvf9UuZka0",
+          "mode": "list",
+          "cachedResultName": "提醒助理"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 776699027,
+          "mode": "list",
+          "cachedResultName": "pending_tasks",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VyRwG_bWYfu8uVmPIs0xPwDJs__b4yCsmrvf9UuZka0/edit#gid=776699027"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "={{ $json.id }}",
+            "task_name": "={{ $json.task_name }}",
+            "category": "={{ $json.category }}",
+            "deadline_date": "={{ $json.deadline_date }}",
+            "deadline_time": "={{ $json.deadline_time }}",
+            "reminder_time": "={{ $json.reminder_time }}",
+            "priority": "={{ $json.priority }}",
+            "status": "pending",
+            "note": "={{ $json.note }}",
+            "source_message": "={{ $json.source_message }}",
+            "created_at": "={{ $json.created_at }}",
+            "updated_at": "={{ $json.updated_at }}",
+            "userId": "={{ $('Code (解析 replyToken & userId)').first().json.userId }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "userId",
+              "displayName": "userId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "task_name",
+              "displayName": "task_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "category",
+              "displayName": "category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "deadline_date",
+              "displayName": "deadline_date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "deadline_time",
+              "displayName": "deadline_time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "reminder_time",
+              "displayName": "reminder_time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "priority",
+              "displayName": "priority",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "note",
+              "displayName": "note",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "source_message",
+              "displayName": "source_message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "updated_at",
+              "displayName": "updated_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        22624,
+        25264
+      ],
+      "id": "6ef7556d-4c6c-4f77-b63d-d8df04401faa",
+      "name": "Append row in sheet (VLM)",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "3oP5Xw9cPfxHuTfI",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "destinationFieldName": "tasks",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        22832,
+        25264
+      ],
+      "id": "1deee9c4-74d9-4d85-a78d-9744ee8068d7",
+      "name": "Aggregate (VLM)"
+    },
+    {
+      "parameters": {
+        "jsCode": "const allTasks = $input.first().json.tasks || [];\nconst count = allTasks.length;\nconst userId = allTasks[0]?.userId || $('Code (解析 replyToken & userId)').first().json.userId;\nconst list = allTasks.map((t, i) => `${i+1}. ${t.task_name} (${t.deadline_date})`).join('\\n');\nconst lineBodyText = `📷 找到 ${count} 筆任務：\\n\\n${list}\\n\\n回覆「確認新增」儲存，或「取消」放棄`;\nreturn [{ json: { userId, lineBodyText } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        23040,
+        25264
+      ],
+      "id": "ad1d791c-7f7e-4e58-a2f3-dc81e2baf1e1",
+      "name": "Code (VLM reply)"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.line.me/v2/bot/message/push",
+        "sendHeaders": true,
+        "specifyHeaders": "json",
+        "jsonHeaders": "{\n  \"Content-Type\": \"application/json\",\n  \"Authorization\": \"Bearer YOUR_LINE_CHANNEL_ACCESS_TOKEN\"\n}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({to: $json.userId, messages: [{type: 'text', text: $json.lineBodyText}]}) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        23248,
+        25264
+      ],
+      "id": "274a65b8-ea66-4282-bf7c-075e62b2d18e",
+      "name": "HTTP Request (VLM reply)"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "confirm-intent",
+              "leftValue": "={{ $json.intent }}",
+              "rightValue": "confirm_pending",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        22688,
+        26576
+      ],
+      "id": "e5e3579f-54bd-4061-931e-212e0cb71879",
+      "name": "If (confirm_pending?)"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "cancel-intent",
+              "leftValue": "={{ $json.intent }}",
+              "rightValue": "cancel_pending",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        22800,
+        26832
+      ],
+      "id": "577b696d-e9c5-4f37-8429-633d2a84b793",
+      "name": "If (cancel_pending?)"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1VyRwG_bWYfu8uVmPIs0xPwDJs__b4yCsmrvf9UuZka0",
+          "mode": "list",
+          "cachedResultName": "提醒助理"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 776699027,
+          "mode": "list",
+          "cachedResultName": "pending_tasks",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VyRwG_bWYfu8uVmPIs0xPwDJs__b4yCsmrvf9UuZka0/edit#gid=776699027"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        23024,
+        26560
+      ],
+      "id": "6d0b0aaf-0d51-40cf-b352-58bbbef1356f",
+      "name": "Get pending tasks (confirm)",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "3oP5Xw9cPfxHuTfI",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const allRows = $input.all();\nconst userId = $('Code (解析 replyToken & userId)').first().json.userId;\nconst pending = allRows.filter(r => r.json.userId === userId && r.json.status === 'pending');\nif (pending.length === 0) {\n  return [{ json: { noPending: true, userId, lineBodyText: '📋 目前沒有待確認的圖片任務。' } }];\n}\nconst now = new Date(Date.now() + 8 * 60 * 60 * 1000);\nconst nowStr = now.toISOString().slice(0, 16).replace('T', ' ');\nreturn pending.sort((a,b) => b.json.row_number - a.json.row_number).map(r => ({\n  json: {\n    noPending: false,\n    row_number: r.json.row_number,\n    id: r.json.id,\n    task_name: r.json.task_name,\n    category: r.json.category,\n    deadline_date: r.json.deadline_date,\n    deadline_time: r.json.deadline_time,\n    reminder_time: r.json.reminder_time,\n    priority: r.json.priority,\n    note: r.json.note || '',\n    source_message: r.json.source_message || '[圖片辨識]',\n    created_at: r.json.created_at,\n    updated_at: nowStr,\n    userId,\n    totalCount: pending.length\n  }\n}));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        23264,
+        26560
+      ],
+      "id": "e41574c0-e241-4afa-b33b-8cdca74753ba",
+      "name": "Code (confirm prepare)"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "no-pending-chk",
+              "leftValue": "={{ $json.noPending }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "name": "filter.operator.true"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        23488,
+        26560
+      ],
+      "id": "2f4af3df-4b37-4882-857c-594148455305",
+      "name": "If (no pending confirm?)"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.line.me/v2/bot/message/push",
+        "sendHeaders": true,
+        "specifyHeaders": "json",
+        "jsonHeaders": "{\n  \"Content-Type\": \"application/json\",\n  \"Authorization\": \"Bearer YOUR_LINE_CHANNEL_ACCESS_TOKEN\"\n}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({to: $json.userId, messages: [{type: 'text', text: $json.lineBodyText}]}) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        23680,
+        26448
+      ],
+      "id": "494e4773-0c3e-45ab-860e-158e8109672a",
+      "name": "HTTP Request (no pending reply)"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1VyRwG_bWYfu8uVmPIs0xPwDJs__b4yCsmrvf9UuZka0",
+          "mode": "list",
+          "cachedResultName": "提醒助理"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "工作表1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VyRwG_bWYfu8uVmPIs0xPwDJs__b4yCsmrvf9UuZka0/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "={{ $json.id }}",
+            "task_name": "={{ $json.task_name }}",
+            "category": "={{ $json.category }}",
+            "deadline_date": "={{ $json.deadline_date }}",
+            "deadline_time": "={{ $json.deadline_time }}",
+            "reminder_time": "={{ $json.reminder_time }}",
+            "priority": "={{ $json.priority }}",
+            "status": "未完成",
+            "note": "={{ $json.note }}",
+            "source_message": "={{ $json.source_message }}",
+            "created_at": "={{ $json.created_at }}",
+            "updated_at": "={{ $json.updated_at }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "task_name",
+              "displayName": "task_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "category",
+              "displayName": "category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "deadline_date",
+              "displayName": "deadline_date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "deadline_time",
+              "displayName": "deadline_time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "reminder_time",
+              "displayName": "reminder_time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "priority",
+              "displayName": "priority",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "note",
+              "displayName": "note",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "source_message",
+              "displayName": "source_message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "updated_at",
+              "displayName": "updated_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        23680,
+        26624
+      ],
+      "id": "ed2c3e6a-02ac-48de-a162-8e4390807566",
+      "name": "Append confirmed to main sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "3oP5Xw9cPfxHuTfI",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1VyRwG_bWYfu8uVmPIs0xPwDJs__b4yCsmrvf9UuZka0",
+          "mode": "list",
+          "cachedResultName": "提醒助理"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 776699027,
+          "mode": "list",
+          "cachedResultName": "pending_tasks",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VyRwG_bWYfu8uVmPIs0xPwDJs__b4yCsmrvf9UuZka0/edit#gid=776699027"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "status": "已新增",
+            "row_number": "={{ $('Code (confirm prepare)').item.json.row_number }}"
+          },
+          "matchingColumns": [
+            "row_number"
+          ],
+          "schema": [
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        23888,
+        26624
+      ],
+      "id": "a7cd9e5a-78a9-4e78-baf7-d4f68a55e90e",
+      "name": "Update pending (已新增)",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "3oP5Xw9cPfxHuTfI",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "destinationFieldName": "tasks",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        24112,
+        26624
+      ],
+      "id": "842c8045-ea14-4d22-8ff7-b4b748b7d609",
+      "name": "Aggregate (confirm)"
+    },
+    {
+      "parameters": {
+        "jsCode": "const tasks = $('Code (confirm prepare)').all().filter(t => !t.json.noPending);\nconst count = tasks.length;\nconst userId = $('Code (解析 replyToken & userId)').first().json.userId;\nconst list = tasks.map((t,i) => `${i+1}. ${t.json.task_name} (${t.json.deadline_date})`).join('\\n');\nconst lineBodyText = `✅ 已新增 ${count} 筆任務：\\n\\n${list}`;\nreturn [{ json: { userId, lineBodyText } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        24320,
+        26624
+      ],
+      "id": "da0931cc-b609-4a44-b698-d39b54910975",
+      "name": "Code (confirm reply)"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.line.me/v2/bot/message/push",
+        "sendHeaders": true,
+        "specifyHeaders": "json",
+        "jsonHeaders": "{\n  \"Content-Type\": \"application/json\",\n  \"Authorization\": \"Bearer YOUR_LINE_CHANNEL_ACCESS_TOKEN\"\n}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({to: $json.userId, messages: [{type: 'text', text: $json.lineBodyText}]}) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        24528,
+        26624
+      ],
+      "id": "77419a6b-7079-43f2-b095-aebd1b77543e",
+      "name": "HTTP Request (confirm reply)"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1VyRwG_bWYfu8uVmPIs0xPwDJs__b4yCsmrvf9UuZka0",
+          "mode": "list",
+          "cachedResultName": "提醒助理"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 776699027,
+          "mode": "list",
+          "cachedResultName": "pending_tasks",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VyRwG_bWYfu8uVmPIs0xPwDJs__b4yCsmrvf9UuZka0/edit#gid=776699027"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        23072,
+        26816
+      ],
+      "id": "b651a37a-95a2-4caa-acd2-2ddac7d7d2b1",
+      "name": "Get pending tasks (cancel)",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "3oP5Xw9cPfxHuTfI",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const allRows = $input.all();\nconst userId = $('Code (解析 replyToken & userId)').first().json.userId;\nconst pending = allRows.filter(r => r.json.userId === userId && r.json.status === 'pending');\nif (pending.length === 0) {\n  return [{ json: { noPending: true, userId, lineBodyText: '📋 目前沒有待取消的圖片任務。' } }];\n}\nreturn pending.sort((a,b) => b.json.row_number - a.json.row_number).map(r => ({\n  json: { noPending: false, row_number: r.json.row_number, task_name: r.json.task_name, userId }\n}));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        23312,
+        26816
+      ],
+      "id": "5bb50807-1758-4076-a20b-edf3c6ce6f31",
+      "name": "Code (cancel prepare)"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "no-pending-cancel",
+              "leftValue": "={{ $json.noPending }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "name": "filter.operator.true"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        23584,
+        26816
+      ],
+      "id": "2b3ba632-c22a-4bd2-bd9e-6d1836fb3ff6",
+      "name": "If (no pending cancel?)"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.line.me/v2/bot/message/push",
+        "sendHeaders": true,
+        "specifyHeaders": "json",
+        "jsonHeaders": "{\n  \"Content-Type\": \"application/json\",\n  \"Authorization\": \"Bearer YOUR_LINE_CHANNEL_ACCESS_TOKEN\"\n}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({to: $json.userId, messages: [{type: 'text', text: $json.lineBodyText}]}) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        23872,
+        26800
+      ],
+      "id": "b3a7f46e-65e0-4a10-ab70-d5367e291ee0",
+      "name": "HTTP Request (no pending cancel reply)"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1VyRwG_bWYfu8uVmPIs0xPwDJs__b4yCsmrvf9UuZka0",
+          "mode": "list",
+          "cachedResultName": "提醒助理"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 776699027,
+          "mode": "list",
+          "cachedResultName": "pending_tasks",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VyRwG_bWYfu8uVmPIs0xPwDJs__b4yCsmrvf9UuZka0/edit#gid=776699027"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "status": "已取消",
+            "row_number": "={{ $('Code (cancel prepare)').item.json.row_number }}"
+          },
+          "matchingColumns": [
+            "row_number"
+          ],
+          "schema": [
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        23888,
+        27008
+      ],
+      "id": "1a49848c-9158-41e9-b983-28bf5dcd67ee",
+      "name": "Update pending (已取消)",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "3oP5Xw9cPfxHuTfI",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "destinationFieldName": "tasks",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        24112,
+        27008
+      ],
+      "id": "1ea2d084-0737-4ecc-a7d8-f35a1b2d7305",
+      "name": "Aggregate (cancel)"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.line.me/v2/bot/message/push",
+        "sendHeaders": true,
+        "specifyHeaders": "json",
+        "jsonHeaders": "{\n  \"Content-Type\": \"application/json\",\n  \"Authorization\": \"Bearer YOUR_LINE_CHANNEL_ACCESS_TOKEN\"\n}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({to: $('Code (解析 replyToken & userId)').first().json.userId, messages: [{type: 'text', text: '❌ 已取消新增圖片任務。'}]}) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        24320,
+        27008
+      ],
+      "id": "b1e08a2e-26cb-487d-b695-63fc7bdd2e45",
+      "name": "HTTP Request (cancel reply)"
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $input.first().json.body;\nconst event = body.events[0];\nconst messageType = event.message.type;\nconst message = event.message.text || '';\nconst messageId = event.message.id;\nconst replyToken = event.replyToken;\nconst userId = event.source.userId;\n\nconst now = new Date();\nconst taipeiOffset = 8 * 60 * 60 * 1000;\nconst taipeiMs = now.getTime() + taipeiOffset;\nconst today = new Date(taipeiMs).toISOString().split('T')[0];\n\nreturn [{ json: { message, messageType, messageId, replyToken, userId, today } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        21328,
+        25264
+      ],
+      "id": "1039d710-6ed2-4f35-acc7-4188880cb73a",
+      "name": "Code (解析 replyToken & userId)"
+    },
+    {
+      "parameters": {
+        "jsCode": "const output = $input.first().json.output;\nconst cleaned = output.replace(/```json|```/g, '').trim();\nlet parsed;\ntry {\n  parsed = JSON.parse(cleaned);\n} catch(e) {\n  parsed = { intent: 'unknown' };\n}\nconst src = $('Code (解析 replyToken & userId)').first().json;\nconst userId = src.userId;\nconst source_message = src.message;\n\nconst lineBodyTo = userId;\nlet lineBodyText = '';\nif (parsed.intent === 'create_task') {\n  lineBodyText = '✅ 已新增任務：' + (parsed.task_name || '') + '\\n📅 截止日：' + (parsed.deadline_date || '') + ' ' + (parsed.deadline_time || '') + '\\n📂 分類：' + (parsed.category || '') + '\\n⏰ 提醒：' + (parsed.reminder_time || '');\n} else if (parsed.intent === 'unknown') {\n  lineBodyText = '🤔 我不確定你想做什麼，請重新輸入！\\n\\n例如：\\n・5/30 要交報告\\n・資料庫作業完成了\\n・我這週有什麼事？';\n}\n\nreturn [{ json: { ...parsed, userId, source_message, lineBodyTo, lineBodyText } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        22032,
+        25568
+      ],
+      "id": "9bae84a9-6929-4949-bc2a-9a5b16152a2f",
+      "name": "Code (解析 AI 意圖 JSON)"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "c5cba5a9-677e-48fc-8739-e01249ba57d2",
+              "leftValue": "={{ $json.intent }}",
+              "rightValue": "create_task",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        22240,
+        25568
+      ],
+      "id": "b78d9c4a-e9eb-4040-9110-477d276e1979",
+      "name": "If (intent route)"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "8076dd34-c443-40a6-9f01-81a5b8391d8a",
+              "leftValue": "={{ $json.intent }}",
+              "rightValue": "query_task",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        22352,
+        25792
+      ],
+      "id": "939d200e-0ebb-4eb1-9a88-0108bc80be34",
+      "name": "If (query_task?)"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "911d1562-fa24-45db-9014-3d6546309310",
+              "leftValue": "={{ $json.intent }}",
+              "rightValue": "complete_task",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        22464,
+        26032
+      ],
+      "id": "f06ce8ba-15b6-4318-b97d-3d4527492088",
+      "name": "If (complete_task?)"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "dee13008-c13e-4740-95f4-11eb15080c65",
+              "leftValue": "={{ $json.intent }}",
+              "rightValue": "delete_task",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        22576,
+        26224
+      ],
+      "id": "b85d9d14-aa50-4f83-a997-ef7bcc44fcc8",
+      "name": "IF（delete_task）"
+    },
+    {
+      "parameters": {
+        "jsCode": "const rows = $input.all();\nconst intent = $('Code (解析 AI 意圖 JSON)').first().json;\nconst queryRange = intent.query_range;\nconst userId = intent.userId;\n\nconst offset = 8 * 60 * 60 * 1000;\nconst now = new Date(Date.now() + offset);\nconst today = now.toISOString().split('T')[0];\n// 週末 = 本週日（台灣週曆：週一開始，週日結束）\nconst dayOfWeek = now.getDay(); // 0=週日\nconst daysUntilSunday = dayOfWeek === 0 ? 0 : 7 - dayOfWeek;\nconst weekEnd = new Date(now.getTime() + daysUntilSunday * 86400000).toISOString().split('T')[0];\n\nlet filtered = rows.filter(r => r.json.status !== '已完成' && r.json.status !== '已取消');\nif (queryRange === 'today') {\n  filtered = filtered.filter(r => r.json.deadline_date === today);\n} else if (queryRange === 'this_week') {\n  filtered = filtered.filter(r => r.json.deadline_date >= today && r.json.deadline_date <= weekEnd);\n}\nfiltered.sort((a, b) => (a.json.deadline_date + (a.json.deadline_time || '')).localeCompare(b.json.deadline_date + (b.json.deadline_time || '')));\n\nlet lineBodyText = '';\nif (filtered.length === 0) {\n  const rangeText = { today: '今天', this_week: '這週', all: '目前' }[queryRange] || '目前';\n  lineBodyText = `🎉 ${rangeText}沒有任何待辦事項，好好休息吧！`;\n} else {\n  const lines = ['📋 查詢結果（' + filtered.length + ' 筆）', ''];\n  filtered.forEach((r, i) => {\n    const p = { '高': '🔴', '中': '🟡', '低': '🟢' }[r.json.priority] || '';\n    lines.push((i+1) + '. ' + p + ' ' + r.json.task_name);\n    lines.push('   📅 ' + r.json.deadline_date + ' ' + (r.json.deadline_time || '') + ' | 📂 ' + r.json.category + ' | ' + r.json.status);\n    lines.push('');\n  });\n  lineBodyText = lines.join('\\n');\n}\n\nconst lineBodyTo = userId;\nreturn [{ json: { lineBodyTo, lineBodyText, userId } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        22784,
+        25776
+      ],
+      "id": "994748d2-96b5-47b1-af14-868ce34a06e2",
+      "name": "Code (格式化查詢結果)"
+    },
+    {
+      "parameters": {
+        "jsCode": "const rows = $input.all();\nconst taskName = $('Code (解析 AI 意圖 JSON)').first().json.task_name;\nconst userId = $('Code (解析 AI 意圖 JSON)').first().json.userId;\n\nconst normalize = s => (s || '').replace(/\\s/g, '');\nconst matched = rows.find(r =>\n  normalize(r.json.task_name).includes(normalize(taskName)) &&\n  r.json.status !== '已完成' &&\n  r.json.status !== '已取消'\n);\n\nif (!matched) {\n  return [{ json: { found: false, userId, lineBodyTo: userId, lineBodyText: '❌ 找不到任務「' + taskName + '」，請確認任務名稱。' } }];\n}\n\nreturn [{ json: {\n  found: true,\n  rowNumber: matched.json['row_number'],\n  task_name: matched.json.task_name,\n  userId,\n  lineBodyTo: userId,\n  lineBodyText: '✅ 已完成：' + matched.json.task_name + ' 🎉'\n}}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        22976,
+        26016
+      ],
+      "id": "82a5b5c8-24a1-4c44-b063-b85b17e3705f",
+      "name": "Code (處理完成任務)"
+    },
+    {
+      "parameters": {
+        "jsCode": "const rows = $input.all();\nconst taskName = $('Code (解析 AI 意圖 JSON)').first().json.task_name;\nconst userId = $('Code (解析 AI 意圖 JSON)').first().json.userId;\n\nconst normalize = s => (s || '').replace(/\\s/g, '');\nconst matched = rows.find(r =>\n  normalize(r.json.task_name).includes(normalize(taskName)) &&\n  r.json.status !== '已取消'\n);\n\nif (!matched) {\n  return [{ json: { found: false, userId, lineBodyTo: userId, lineBodyText: '❌ 找不到任務「' + taskName + '」，請確認任務名稱。' } }];\n}\n\nreturn [{ json: {\n  found: true,\n  rowNumber: matched.json['row_number'],\n  task_name: matched.json.task_name,\n  userId,\n  lineBodyTo: userId,\n  lineBodyText: '🗑️ 已取消：' + matched.json.task_name\n}}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        23104,
+        26208
+      ],
+      "id": "8444f8eb-0021-43e2-8db4-0028a65fd63b",
+      "name": "Code (處理刪除任務)"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1VyRwG_bWYfu8uVmPIs0xPwDJs__b4yCsmrvf9UuZka0",
+          "mode": "list",
+          "cachedResultName": "提醒助理",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VyRwG_bWYfu8uVmPIs0xPwDJs__b4yCsmrvf9UuZka0/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "工作表1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VyRwG_bWYfu8uVmPIs0xPwDJs__b4yCsmrvf9UuZka0/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "={{ $now.toMillis() }}",
+            "task_name": "={{ $('Code (解析 AI 意圖 JSON)').first().json.task_name }}",
+            "category": "={{ $('Code (解析 AI 意圖 JSON)').first().json.category }}",
+            "deadline_date": "={{ $('Code (解析 AI 意圖 JSON)').first().json.deadline_date }}",
+            "deadline_time": "={{ $('Code (解析 AI 意圖 JSON)').first().json.deadline_time }}",
+            "reminder_time": "={{ $('Code (解析 AI 意圖 JSON)').first().json.reminder_time }}",
+            "priority": "={{ $('Code (解析 AI 意圖 JSON)').first().json.priority }}",
+            "status": "={{ $('Code (解析 AI 意圖 JSON)').first().json.status }}",
+            "note": "={{ $('Code (解析 AI 意圖 JSON)').first().json.note }}",
+            "source_message": "={{ $('Code (解析 AI 意圖 JSON)').first().json.source_message }}",
+            "created_at": "={{ $now.format('yyyy-MM-dd HH:mm') }}",
+            "updated_at": "={{ $now.format('yyyy-MM-dd HH:mm') }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "task_name",
+              "displayName": "task_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "category",
+              "displayName": "category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "deadline_date",
+              "displayName": "deadline_date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "deadline_time",
+              "displayName": "deadline_time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "reminder_time",
+              "displayName": "reminder_time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "priority",
+              "displayName": "priority",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "note",
+              "displayName": "note",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "source_message",
+              "displayName": "source_message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "updated_at",
+              "displayName": "updated_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        22480,
+        25552
+      ],
+      "id": "b0a12add-fe62-4eea-9fde-ca47b9b2093a",
+      "name": "Append row in sheet (create)",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "3oP5Xw9cPfxHuTfI",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.line.me/v2/bot/message/push",
+        "sendHeaders": true,
+        "specifyHeaders": "json",
+        "jsonHeaders": "{\n  \"Content-Type\": \"application/json\",\n  \"Authorization\": \"Bearer YOUR_LINE_CHANNEL_ACCESS_TOKEN\"\n}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({to: $('Code (解析 replyToken & userId)').first().json.userId, messages: [{type: 'text', text: $('Code (解析 AI 意圖 JSON)').first().json.lineBodyText}]}) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        22688,
+        25552
+      ],
+      "id": "12277393-84fb-4a7c-b1ac-0ec85f57908d",
+      "name": "HTTP Request (create reply)"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.line.me/v2/bot/message/push",
+        "sendHeaders": true,
+        "specifyHeaders": "json",
+        "jsonHeaders": "{\n  \"Content-Type\": \"application/json\",\n  \"Authorization\": \"Bearer YOUR_LINE_CHANNEL_ACCESS_TOKEN\"\n}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({to: $json.userId, messages: [{type: 'text', text: $json.lineBodyText}]}) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        22992,
+        25776
+      ],
+      "id": "7fb37e02-f2e9-456a-8b72-1116c4e8211b",
+      "name": "HTTP Request (query reply)"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1VyRwG_bWYfu8uVmPIs0xPwDJs__b4yCsmrvf9UuZka0",
+          "mode": "list",
+          "cachedResultName": "提醒助理",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VyRwG_bWYfu8uVmPIs0xPwDJs__b4yCsmrvf9UuZka0/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "工作表1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VyRwG_bWYfu8uVmPIs0xPwDJs__b4yCsmrvf9UuZka0/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "status": "已完成",
+            "updated_at": "={{ $now.format('yyyy-MM-dd HH:mm') }}",
+            "row_number": "={{ $json.rowNumber }}"
+          },
+          "matchingColumns": [
+            "row_number"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "task_name",
+              "displayName": "task_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "category",
+              "displayName": "category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "deadline_date",
+              "displayName": "deadline_date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "deadline_time",
+              "displayName": "deadline_time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "reminder_time",
+              "displayName": "reminder_time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "priority",
+              "displayName": "priority",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "note",
+              "displayName": "note",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "source_message",
+              "displayName": "source_message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "updated_at",
+              "displayName": "updated_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        23392,
+        25840
+      ],
+      "id": "b5ed13e2-507b-4718-a9b2-226ce393c587",
+      "name": "Update row in sheet (complete)",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "3oP5Xw9cPfxHuTfI",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.line.me/v2/bot/message/push",
+        "sendHeaders": true,
+        "specifyHeaders": "json",
+        "jsonHeaders": "{\n  \"Content-Type\": \"application/json\",\n  \"Authorization\": \"Bearer YOUR_LINE_CHANNEL_ACCESS_TOKEN\"\n}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({to: $('Code (處理完成任務)').first().json.userId, messages: [{type: 'text', text: $('Code (處理完成任務)').first().json.lineBodyText}]}) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        23600,
+        25840
+      ],
+      "id": "f13cf5d2-e327-4462-aa05-0cbec6155e1f",
+      "name": "HTTP Request (complete reply)"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1VyRwG_bWYfu8uVmPIs0xPwDJs__b4yCsmrvf9UuZka0",
+          "mode": "list",
+          "cachedResultName": "提醒助理",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VyRwG_bWYfu8uVmPIs0xPwDJs__b4yCsmrvf9UuZka0/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "工作表1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VyRwG_bWYfu8uVmPIs0xPwDJs__b4yCsmrvf9UuZka0/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "status": "已取消",
+            "row_number": "={{ $json.rowNumber }}",
+            "updated_at": "={{ $now.format('yyyy-MM-dd HH:mm') }}"
+          },
+          "matchingColumns": [
+            "row_number"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "task_name",
+              "displayName": "task_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "category",
+              "displayName": "category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "deadline_date",
+              "displayName": "deadline_date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "deadline_time",
+              "displayName": "deadline_time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "reminder_time",
+              "displayName": "reminder_time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "priority",
+              "displayName": "priority",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "note",
+              "displayName": "note",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "source_message",
+              "displayName": "source_message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "updated_at",
+              "displayName": "updated_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        23616,
+        26192
+      ],
+      "id": "379247d9-0fc8-4cf5-9a5a-70056e3c639f",
+      "name": "Update row in sheet (delete)",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "3oP5Xw9cPfxHuTfI",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.line.me/v2/bot/message/push",
+        "sendHeaders": true,
+        "specifyHeaders": "json",
+        "jsonHeaders": "{\n  \"Content-Type\": \"application/json\",\n  \"Authorization\": \"Bearer YOUR_LINE_CHANNEL_ACCESS_TOKEN\"\n}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({to: $('Code (處理刪除任務)').first().json.userId, messages: [{type: 'text', text: $('Code (處理刪除任務)').first().json.lineBodyText}]}) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        23872,
+        26192
+      ],
+      "id": "0d2200d7-fcbf-4f69-a63a-e9600cafeecd",
+      "name": "HTTP Request (delete reply)"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Code (解析 replyToken & userId)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Code (解析 AI 意圖 JSON)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "Code (格式化查詢結果)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet1": {
+      "main": [
+        [
+          {
+            "node": "Code (處理完成任務)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If4 (complete found?)": {
+      "main": [
+        [
+          {
+            "node": "Update row in sheet (complete)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP Request2 (not found)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet2": {
+      "main": [
+        [
+          {
+            "node": "Code (處理刪除任務)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If5 (delete found?)": {
+      "main": [
+        [
+          {
+            "node": "Update row in sheet (delete)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP Request3 (not found)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If (image?)": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request (LINE image)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request (LINE image)": {
+      "main": [
+        [
+          {
+            "node": "Code (Vision + Parse)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If (has error?)": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request (VLM error)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Append row in sheet (VLM)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet (VLM)": {
+      "main": [
+        [
+          {
+            "node": "Aggregate (VLM)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate (VLM)": {
+      "main": [
+        [
+          {
+            "node": "Code (VLM reply)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code (VLM reply)": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request (VLM reply)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code (Vision + Parse)": {
+      "main": [
+        [
+          {
+            "node": "If (has error?)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If (confirm_pending?)": {
+      "main": [
+        [
+          {
+            "node": "Get pending tasks (confirm)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "If (cancel_pending?)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If (cancel_pending?)": {
+      "main": [
+        [
+          {
+            "node": "Get pending tasks (cancel)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP Request4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get pending tasks (confirm)": {
+      "main": [
+        [
+          {
+            "node": "Code (confirm prepare)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code (confirm prepare)": {
+      "main": [
+        [
+          {
+            "node": "If (no pending confirm?)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If (no pending confirm?)": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request (no pending reply)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Append confirmed to main sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append confirmed to main sheet": {
+      "main": [
+        [
+          {
+            "node": "Update pending (已新增)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update pending (已新增)": {
+      "main": [
+        [
+          {
+            "node": "Aggregate (confirm)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate (confirm)": {
+      "main": [
+        [
+          {
+            "node": "Code (confirm reply)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code (confirm reply)": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request (confirm reply)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get pending tasks (cancel)": {
+      "main": [
+        [
+          {
+            "node": "Code (cancel prepare)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code (cancel prepare)": {
+      "main": [
+        [
+          {
+            "node": "If (no pending cancel?)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If (no pending cancel?)": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request (no pending cancel reply)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Update pending (已取消)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update pending (已取消)": {
+      "main": [
+        [
+          {
+            "node": "Aggregate (cancel)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate (cancel)": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request (cancel reply)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code (解析 replyToken & userId)": {
+      "main": [
+        [
+          {
+            "node": "If (image?)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code (解析 AI 意圖 JSON)": {
+      "main": [
+        [
+          {
+            "node": "If (intent route)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If (intent route)": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet (create)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "If (query_task?)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If (query_task?)": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "If (complete_task?)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If (complete_task?)": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "IF（delete_task）",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF（delete_task）": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "If (confirm_pending?)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code (格式化查詢結果)": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request (query reply)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code (處理完成任務)": {
+      "main": [
+        [
+          {
+            "node": "If4 (complete found?)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code (處理刪除任務)": {
+      "main": [
+        [
+          {
+            "node": "If5 (delete found?)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet (create)": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request (create reply)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update row in sheet (complete)": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request (complete reply)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update row in sheet (delete)": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request (delete reply)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "ba945221-dbd6-4f2a-a7cb-262e37c70250",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "628c89e2aed0df780ac844e2c55d02c762891f4348f3d441f498406d43bef407"
+  },
+  "id": "R0TrMyFNoCfwYwaO",
+  "tags": []
+}

@@ -1,0 +1,141 @@
+{
+  "name": "TaskMind - 逾期提醒",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 21 * * *"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -480,
+        -352
+      ],
+      "id": "e788a48b-9a2c-47ef-80d6-06f2a4cf4085",
+      "name": "Schedule Trigger (每日 21:00)"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1VyRwG_bWYfu8uVmPIs0xPwDJs__b4yCsmrvf9UuZka0",
+          "mode": "list",
+          "cachedResultName": "提醒助理",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VyRwG_bWYfu8uVmPIs0xPwDJs__b4yCsmrvf9UuZka0/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "工作表1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VyRwG_bWYfu8uVmPIs0xPwDJs__b4yCsmrvf9UuZka0/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -304,
+        -352
+      ],
+      "id": "3ccc46bc-8fad-4098-a4ad-afcf2ed2f98a",
+      "name": "Get 逾期任務",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "3oP5Xw9cPfxHuTfI",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const rows = $input.all();\n\n// 台北時間\nconst offset = 8 * 60 * 60 * 1000;\nconst today = new Date(Date.now() + offset).toISOString().split('T')[0];\n\nconst overdue = rows.filter(r =>\n  r.json.deadline_date &&\n  r.json.deadline_date < today &&\n  r.json.status !== '已完成' &&\n  r.json.status !== '已取消'\n);\n\noverdue.sort((a, b) => a.json.deadline_date.localeCompare(b.json.deadline_date));\n\nlet msg = '';\nif (overdue.length === 0) {\n  msg = '✅ 目前沒有逾期任務，繼續保持！';\n} else {\n  msg = `⚠️ 逾期任務提醒（${overdue.length} 件）\\n\\n`;\n  overdue.forEach((t, i) => {\n    msg += `${i+1}. ${t.json.task_name}\\n`;\n    msg += `   📅 截止日：${t.json.deadline_date} ｜ 📂 ${t.json.category || '未分類'}\\n\\n`;\n  });\n  msg += '請盡快處理或回覆我標記為完成/取消 🙏';\n}\n\nreturn [{ json: { msg } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -96,
+        -352
+      ],
+      "id": "c7e23584-979f-43d6-8d9d-c4dd37af0503",
+      "name": "Code (組合逾期訊息)"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.line.me/v2/bot/message/push",
+        "sendHeaders": true,
+        "specifyHeaders": "json",
+        "jsonHeaders": "{\n  \"Content-Type\": \"application/json\",\n  \"Authorization\": \"Bearer YOUR_LINE_CHANNEL_ACCESS_TOKEN\"\n}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({to: \"U76a78ee663acf7e099e54516525b67ff\", messages: [{type: \"text\", text: $json.msg}]}) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        128,
+        -352
+      ],
+      "id": "46045eb3-fdfa-4737-bd52-26ecc67709da",
+      "name": "HTTP Request (逾期提醒)"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger (每日 21:00)": {
+      "main": [
+        [
+          {
+            "node": "Get 逾期任務",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get 逾期任務": {
+      "main": [
+        [
+          {
+            "node": "Code (組合逾期訊息)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code (組合逾期訊息)": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request (逾期提醒)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "e3272c91-cd91-427c-9872-c22c1ed34bbd",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "628c89e2aed0df780ac844e2c55d02c762891f4348f3d441f498406d43bef407"
+  },
+  "id": "75lbb3CaNK6Uhvdz",
+  "tags": []
+}
