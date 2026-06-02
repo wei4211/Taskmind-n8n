@@ -7,7 +7,7 @@
 ## 功能特色
 
 - **自然語言輸入**：直接用中文說「明天要交報告」，AI 自動解析並新增任務
-- **圖片辨識（VLM）**：傳送圖片，自動識別內容並存入任務
+- **圖片辨識**：傳送圖片，AI 自動識別內容並存入任務
 - **完整任務管理**：新增、查詢、完成、刪除任務
 - **待辦確認機制**：支援確認或取消待辦中的任務
 - **自動提醒**：每日、逾期、每週五、每週日四種排程提醒
@@ -64,7 +64,7 @@ Google Gemini AI（意圖識別）
 - **[LINE Messaging API](https://developers.line.biz/)** — Webhook 接收與 Reply API 回覆
 - **[Google Gemini AI](https://deepmind.google/technologies/gemini/)** — 自然語言意圖識別與圖片辨識
 - **[Google Sheets](https://sheets.google.com/)** — 輕量任務資料儲存
-- **[ngrok](https://ngrok.com/)** — 本地端 Webhook 穿透
+- **[ngrok](https://ngrok.com/)** — 將本機服務對外公開，讓 LINE Webhook 可以連進來
 - **Docker** — 容器化部署
 
 ---
@@ -115,7 +115,7 @@ docker compose up -d
 
 **4. 開啟 n8n**
 
-前往 `http://localhost:5678`，匯入 `workflows/` 資料夾中的五個工作流程 JSON 檔案。
+前往 `http://localhost:5678`，匯入專案根目錄中的五個工作流程 JSON 檔案。
 
 **5. 在 n8n 設定 Credentials**
 
@@ -123,7 +123,7 @@ docker compose up -d
 
 | 憑證名稱 | 類型 | 說明 |
 |----------|------|------|
-| Google account | Google OAuth2 | 用於 Google Drive 授權 |
+| Google account | Google OAuth2 | Google 帳號授權（OAuth 連線基礎） |
 | Google Sheets account | Google Sheets OAuth2 | 連接試算表（主工作流使用） |
 | Google Gemini(PaLM) Api account | Google PaLM API | 填入 Gemini API 金鑰 |
 | Header Auth account | Header Auth | 填入 LINE Channel Access Token，Header 名稱設為 `Authorization`，值為 `Bearer YOUR_TOKEN` |
