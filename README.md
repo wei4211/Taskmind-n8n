@@ -75,8 +75,21 @@ Google Gemini AI（意圖識別）
 
 - Docker & Docker Compose
 - ngrok 帳號（取得 Authtoken）
-- LINE Developers 帳號（建立 Messaging API Channel）
-- Google Cloud 帳號（啟用 Sheets API 與 Gemini API）
+- LINE Developers 帳號（建立 Messaging API Channel，取得 Channel Access Token）
+- Google Cloud 帳號
+
+### Google 服務設定
+
+**Google Cloud Console**（[console.cloud.google.com](https://console.cloud.google.com/)）：
+
+1. 建立或選擇一個專案
+2. 啟用 **Google Sheets API**
+3. 建立 **OAuth 2.0 用戶端 ID**（供 n8n 連接 Google Sheets）
+
+**Google AI Studio**（[aistudio.google.com](https://aistudio.google.com/)）：
+
+1. 登入後前往 **Get API key**
+2. 建立 API 金鑰，後續填入 n8n 的 Gemini credentials
 
 ### 步驟
 
@@ -104,16 +117,27 @@ docker compose up -d
 
 前往 `http://localhost:5678`，匯入 `workflows/` 資料夾中的五個工作流程 JSON 檔案。
 
-**5. 設定 LINE Webhook**
+**5. 在 n8n 設定 Credentials**
+
+匯入工作流程後，需在 n8n 中建立以下四組憑證（Settings → Credentials）：
+
+| 憑證名稱 | 類型 | 說明 |
+|----------|------|------|
+| Google account | Google OAuth2 | 用於 Google Drive 授權 |
+| Google Sheets account | Google Sheets OAuth2 | 連接試算表（主工作流使用） |
+| Google Gemini(PaLM) Api account | Google PaLM API | 填入 Gemini API 金鑰 |
+| Header Auth account | Header Auth | 填入 LINE Channel Access Token，Header 名稱設為 `Authorization`，值為 `Bearer YOUR_TOKEN` |
+
+**6. 設定 LINE Webhook**
 
 將 ngrok 提供的網址填入 LINE Developers Console 的 Webhook URL：
 ```
 https://your-ngrok-domain.ngrok-free.app/webhook/taskmind
 ```
 
-**6. 設定 Google Sheets 連線**
+**7. 設定 Google Sheets**
 
-在 n8n 中設定 Google Sheets credentials，並將 Spreadsheet ID 填入對應節點。
+在 Google Sheets 建立任務試算表，並將各工作流程節點中的 Spreadsheet ID 替換為你的試算表 ID。
 
 ---
 
